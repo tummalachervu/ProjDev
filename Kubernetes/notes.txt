@@ -1,0 +1,87 @@
+t1s3152003066csc
+
+
+
+
+
+Cloud deployments & Interview questions
+
+*********************************************************
+
+So at work we have Kubernetes clusters being managed by Rancher. So there's a plan to migrate our clusters to EKS.
+
+However, there are less technical people in our company that like having a visualization of the clusters that isn't just via kubectl. Heck, even I really like some features that Rancher has, like the "press the + button to deploy more pods" one.
+
+So I was thinking... Would it be possible to have clusters running on EKS, and just having Rancher be like a Kubernetes Dashboard for them? Rancher wouldn't manage any of those clusters, it would only be an interface, kind of like the actual Kubernetes Dashboard.
+
+The thing that is important is that authentication via LDAP is a must, and I found it easier to setup in Rancher than in Kubernetes Dashboard.
+
+Is something like this possible? If yes, how hard/flexible is it to configure?
+**************************************************************************************
+
+Back in... July, I think, the DevOps engineers at my company setup Rancher on RKE, and then created clusters using Amazon EC2 managed by RKE as well. Standard installation, pretty much. Then all of these people left the company.
+
+Fast forward to a couple weeks ago, and a junior devops wanted to be able to access Rancher without getting the "invalid certificate" screen, so I don't know what she did exactly, but I guess she redeployed the Ingress we were using to expose Rancher (or so she told me), and that's when all the clusters took a crap. Basically you weren't able to kubectl into any clusters anymore, because you'd get a "x509 error: certificate signed by an unknown authority". Sure, disabling TLS in the kubeconfig file allowed us to kubectl the clusters again, but over an insecure connection.
+
+And in an attempt to fix it, we tried rotating the certificates of our develop cluster and killing a node to see if a new one would register with new certificates or something. Well, turns out that Rancher couldn't delete the EC2 instance anymore, and it can't create new ones either nor restore snapshots anymore. Our develop cluster is now running with only 2 etcd nodes, while the third is in an unregistering process.
+
+We tried everything we could, and the tutorials and guides usually tell you to use the rke executable with the 3 files that were created when the cluster was first created. Well, we don't have those anymore because, as I said, the DevOps engineer that had those left and he didn't upload the files anywhere. And that really limits what we can do with the clusters.
+
+That's where the motivation of having hosted clusters with Rancher as being just an interface to them comes from.
+
+*****************************************************************************************
+
+Docker provides tools like docker stats and docker events to monitor Docker in production. 
+
+Docker stats: When we call docker stats with a container id, we get the CPU, memory usage etc of a container. It is similar to top command in Linux.
+Docker events: Docker events are a command to see the stream of activities that are going on in Docker daemon.
+
+common Docker events are: attach, commit, die, detach, rename, destroy etc. We can also use various options to limit or filter the events that we are interested in.
+****************************************************
+
+My roles are , i am acting as a Principle DevOps engineer, kind of doing almost all the jobs in my current postion, We have lost both Windows and Linux Admins in the month of May/June. So i am covering their work as well, along with my regular responsibilities, I am also Maintaining V-Sphere Cluster , and storage is ISCUSI based.
+
+I am actully doing 2 different Jobs, One is system Admin and other is Clound/Devops Engineer.
+
+We are seperate from IT. We set up our own VM ware cluster. Now i am handling Linux Administration, Autoamtions, CI/CD implementaions,  Windows Administration, Disk Operatons(Such add/upgrade), RAM Operations(Increasing and allocating) and DB work.
+
+As a Principle DevOps Engineer, I do create and maintian CI/CD pipelines, Autoamting the Builds, Deployments with (Ansible, Salt-stack CM scripting tool), Writing pythong modules if i cant achieve the task with Ansible, Docker EE Implementation and maintaing. ELK environment maintenance, and monitoring Kafa with Burrow.
+
+As a system Admin for TSI Group(Runs on VM infrastructure) I create Vms, Do a File system backup, DB and Resotres(with REAR and PERCONA). I do manage Stage & PRODUCTION environment, most of them are Atlassian (JIRA, Confluence, Bit Bucket, Bamboo), Jenkins, Maintiang HA cluster in Vsphere etc...
+
+
+Code deployments in AWS. Now we are in the middle of migration to Cloud, all our web services ,we are trying to place it on cloud. So I actually created EKS service, as of now, we do manage 10 worker nodes and 1 master nodes for the PROD environment. We are running 20 applications as of now.
+
+Created Clusters in EKS: eksctl create cluster
+***********************
+
+Once i login to my console--> will go to my VPC--> create a IAM role with security groups-->Create a Cluster Control Panel-->Choose Cluster name, K8 version, region & security groups
+
+Then create worker nodes(Ec2 instances) through Node groups, choose the cluster it will attach, define security group, select instance type, resources, Define max and min number of nodes. 
+
+Manifest file tuning: Like adding replicas, adding server certificates & keys, labels update, memeory args update etc..
+
+*********************************
+Docker Vs VM:
+**************
+
+Boot up time is short
+Easy to scale up
+Easy to port to different environments
+Data Volumes can be shared and reused among multipel environments
+Container will have better performance as they are hosted on single docker engine
+*****************************************
+
+docker swarm init, once the manager is ready it will give you a token which you can execute on worker node to add them to cluster
+
+**************************************
+1. You can use docker compose to run multiple containers. It is a yaml file which containes services, networks and volume settings for a contianer
+2. Docker file is used to build image using "build" command
+3. Expose command is used in "Docker file", Publish is used in "Docker Run command"
+
+
+
+
+
+
+

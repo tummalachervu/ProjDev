@@ -1,0 +1,642 @@
+1. yum install mangodb
+2. yum update
+3. service mangodb start
+4. mongo(mango shell)
+	a.  showdbs (you could only see default db)
+	b.  use mydb(will create a new data base)
+	c. db;(we are inside this data base)
+	d. db.mycol.insert({"name" : "Mark"}); (Colletion is created in mydb data bse and there is one document)
+	e. show collections;(For all the collections)
+	f. db.mycol.find(); (shows the information of mycol)
+	
+*********************************************************
+
+DB Admin user creation:
+
+> use admin
+switched to db admin
+> db.createUser(
+... {
+... user: "devAdmin",
+... pwd: "abc123",
+... roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+... }
+... )
+Successfully added user: {
+        "user" : "devAdmin",
+        "roles" : [
+                {
+                        "role" : "userAdminAnyDatabase",
+                        "db" : "admin"
+                }
+        ]
+}
+
+
+*************************************************
+
+Restart mongo service
+
+The Adminuser(devAdmin) has only permission to create and manage database users. If you try to read /write in the data base with Adminuser, mongodb will return error.
+So we need to create additional users to read//write on the data base.
+
+> use test
+switched to db test
+> db.createUser(
+... {
+... user: "testUser",
+... pwd: "abc123",
+... roles: [ { role: "readWrite", db: "test" } ]
+... }
+... )
+Successfully added user: {
+        "user" : "testUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "test"
+                }
+        ]
+}
+
+
+******************************************************
+
+connected back with "testUser" to the database "test"
+
+mongo --port 27017 -u "testUser" -p "abc123" --authenticationDatabase "test"
+
+*****************************************************
+Make sure you are in correct data base:
+
+
+> db
+t
+Make sure you have correct users tied to this data base
+
+> db.getUsers()
+[
+        {
+                "_id" : "test.testUser",
+                "userId" : UUID("acd30c56-b52e-44e6-8108-c4b6db410670"),
+                "user" : "testUser",
+                "db" : "test",
+                "roles" : [
+                        {
+                                "role" : "readWrite",
+                                "db" : "test"
+                        }
+                ],
+                "mechanisms" : [
+                        "SCRAM-SHA-1",
+                        "SCRAM-SHA-256"
+                ]
+        }
+]
+
+*******************************************************
+Create Data Bases:
+*****************
+
+use scheduled_jobs
+use sgs_apscheduler
+use sgs_jam_history
+use sgs_whitelist
+
+I have created the "tesetUser" with read/write permission to all the data bases above.
+***********************
+> db.createUser(
+... {
+... user: "testUser",
+... pwd:"abc123",
+... roles: [ {role: "readWrite", db: "scheduled_jobs"} ]
+... }
+... )
+Successfully added user: {
+        "user" : "testUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "scheduled_jobs"
+                }
+        ]
+}
+***********************
+> db.createUser(
+... {
+... user: "testUser",
+... pwd: "abc123",
+... roles: [ {role: "readWrite", db: "sgs_apscheduler"}]
+... }
+... )
+Successfully added user: {
+        "user" : "testUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_apscheduler"
+                }
+        ]
+}
+**********************
+> use sgs_jam_history
+switched to db sgs_jam_history
+> db.createUser(
+... {
+... user: "testUser",
+... pwd: "abc123",
+... roles: [ {role: "readWrite", db: "sgs_jam_history"}]
+... }
+... )
+Successfully added user: {
+        "user" : "testUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_jam_history"
+                }
+        ]
+}
+************************
+> use sgs_whitelist
+switched to db sgs_whitelist
+> db.createUser(
+... {
+... user: "testUser",
+... pwd: "abc123",
+... roles: [ {role: "readWrite", db: "sgs_jam_history"}]
+... }
+... )
+Successfully added user: {
+        "user" : "testUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_jam_history"
+                }
+        ]
+}
+*************************
+
+
+I have removed "testUser" from Individual data bases and created at auth db level something like this:
+
+> db.createUser({
+... user: "testUser",
+... pwd: "abc123",
+... roles: [
+... { role: "readWrite", db: "auth"},
+... { role: "readWrite", db: "scheduled_jobs"},
+... { role: "readWrite", db: "sgs_apscheduler"},
+... { role: "readWrite", db: "sgs_jam_history"},
+... { role: "readWrite", db: "sgs_whitelist"}
+... ]
+... }
+... )
+Successfully added user: {
+        "user" : "testUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "auth"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "scheduled_jobs"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_apscheduler"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_jam_history"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_whitelist"
+                }
+        ]
+}
+************************************
+
+
+> db.createUser({
+... user: "appUser",
+... pwd: "Horizon123",
+... roles:[
+... { role: "readWrite", db: "auth"},
+... { role: "readWrite", db: "graylog"},
+... { role: "readWrite", db: "sgs_jam_history"},
+... { role: "readWrite", db: "sgs_messaging"},
+... { role: "readWrite", db: "sgs_apscheduler"},
+... { role: "readWrite", db: "sgs_whitelist"},
+... { role: "readWrite", db: "scheduled_jobs"},
+... { role: "readWrite", db: "test"}
+... ]
+... }
+... )
+Successfully added user: {
+        "user" : "appUser",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "auth"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "graylog"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_jam_history"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_messaging"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_apscheduler"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "sgs_whitelist"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "scheduled_jobs"
+                },
+                {
+                        "role" : "readWrite",
+                        "db" : "test"
+                }
+        ]
+}
+
+*******************************************************
+
+
+ db.changeUserPassword("testUser", "zaq12wsx")
+
+
+**************************************************
+
+Restoring the data base(sgs_apscheduler) from Dump:
+
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongorestore --host 10.76.235.114:27017 --username testUser --password abc123 --authenticationDatabase auth --db sgs_apscheduler /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler
+2019-08-22T10:58:34.128-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-08-22T10:58:34.128-0600    building a list of collections to restore from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler dir
+2019-08-22T10:58:34.150-0600    reading metadata for sgs_apscheduler.sgs_testsuite_jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler/sgs_testsuite_jobs.metadata.json
+2019-08-22T10:58:34.172-0600    reading metadata for sgs_apscheduler.campaign_jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler/campaign_jobs.metadata.json
+2019-08-22T10:58:34.361-0600    restoring sgs_apscheduler.sgs_testsuite_jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler/sgs_testsuite_jobs.bson
+2019-08-22T10:58:34.362-0600    reading metadata for sgs_apscheduler.scenario_jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler/scenario_jobs.metadata.json
+2019-08-22T10:58:34.383-0600    restoring sgs_apscheduler.campaign_jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler/campaign_jobs.bson
+2019-08-22T10:58:34.384-0600    restoring indexes for collection sgs_apscheduler.campaign_jobs from metadata
+2019-08-22T10:58:34.414-0600    restoring sgs_apscheduler.scenario_jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_apscheduler/scenario_jobs.bson
+2019-08-22T10:58:34.415-0600    restoring indexes for collection sgs_apscheduler.sgs_testsuite_jobs from metadata
+2019-08-22T10:58:34.415-0600    restoring indexes for collection sgs_apscheduler.scenario_jobs from metadata
+2019-08-22T10:58:34.449-0600    finished restoring sgs_apscheduler.campaign_jobs (0 documents)
+2019-08-22T10:58:34.456-0600    finished restoring sgs_apscheduler.scenario_jobs (0 documents)
+2019-08-22T10:58:34.478-0600    finished restoring sgs_apscheduler.sgs_testsuite_jobs (8 documents)
+2019-08-22T10:58:34.478-0600    done
+**************************************
+
+Check the Data base:
+*******************
+
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongo -u testUser -p abc123
+MongoDB shell version v4.0.12
+connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb
+2019-08-22T11:00:05.197-0600 E QUERY    [js] Error: Authentication failed. :
+connect@src/mongo/shell/mongo.js:344:17
+@(connect):2:6
+exception: connect failed
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongo -u testUser -p abc123 --authenticationDatabase auth
+MongoDB shell version v4.0.12
+connecting to: mongodb://127.0.0.1:27017/?authSource=auth&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("604aa7c0-340b-475d-8e79-64fe4f204f9f") }
+MongoDB server version: 4.0.12
+> show dbs
+sgs_apscheduler  0.000GB
+
+
+***************************************
+
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongorestore --host 10.76.235.114:27017 --username testUser --password abc123 --authenticationDatabase auth --db scheduled_jobs /tmp/mongodb-sgs-dev-dump-08222019-1030/scheduled_jobs
+2019-08-22T11:03:32.311-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-08-22T11:03:32.311-0600    building a list of collections to restore from /tmp/mongodb-sgs-dev-dump-08222019-1030/scheduled_jobs dir
+2019-08-22T11:03:32.333-0600    reading metadata for scheduled_jobs.jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/scheduled_jobs/jobs.metadata.json
+2019-08-22T11:03:32.513-0600    restoring scheduled_jobs.jobs from /tmp/mongodb-sgs-dev-dump-08222019-1030/scheduled_jobs/jobs.bson
+2019-08-22T11:03:32.545-0600    no indexes to restore
+2019-08-22T11:03:32.545-0600    finished restoring scheduled_jobs.jobs (114 documents)
+2019-08-22T11:03:32.545-0600    done
+*****************************************
+
+2019-08-22T11:04:23.328-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-08-22T11:04:23.328-0600    building a list of collections to restore from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_jam_history dir
+2019-08-22T11:04:23.350-0600    reading metadata for sgs_jam_history.sgs_jam_history from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_jam_history/sgs_jam_history.metadata.json
+2019-08-22T11:04:23.689-0600    restoring sgs_jam_history.sgs_jam_history from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_jam_history/sgs_jam_history.bson
+2019-08-22T11:04:23.713-0600    no indexes to restore
+2019-08-22T11:04:23.714-0600    finished restoring sgs_jam_history.sgs_jam_history (2 documents)
+2019-08-22T11:04:23.714-0600    done
+
+**********************************************
+
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongorestore --host 10.76.235.114:27017 --username testUser --password abc123 --authenticationDatabase auth --db test /tmp/mongodb-sgs-dev-dump-08222019-1030/Test
+2019-08-22T11:54:15.845-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-08-22T11:54:15.845-0600    building a list of collections to restore from /tmp/mongodb-sgs-dev-dump-08222019-1030/Test dir
+2019-08-22T11:54:15.868-0600    reading metadata for test.Test from /tmp/mongodb-sgs-dev-dump-08222019-1030/Test/Test.metadata.json
+2019-08-22T11:54:15.989-0600    restoring test.Test from /tmp/mongodb-sgs-dev-dump-08222019-1030/Test/Test.bson
+2019-08-22T11:54:16.015-0600    no indexes to restore
+2019-08-22T11:54:16.015-0600    finished restoring test.Test (1 document)
+2019-08-22T11:54:16.015-0600    done
+************************************************
+
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongorestore --host 10.76.235.114:27017 --username testUser --password abc123 --authenticationDatabase auth --db graylog /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog
+2019-08-22T11:56:53.573-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-08-22T11:56:53.573-0600    building a list of collections to restore from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog dir
+2019-08-22T11:56:53.597-0600    reading metadata for graylog.traffic from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/traffic.metadata.json
+2019-08-22T11:56:53.653-0600    restoring graylog.traffic from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/traffic.bson
+2019-08-22T11:56:53.654-0600    reading metadata for graylog.cluster_config from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/cluster_config.metadata.json
+2019-08-22T11:56:53.654-0600    reading metadata for graylog.index_sets from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_sets.metadata.json
+2019-08-22T11:56:53.654-0600    reading metadata for graylog.roles from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/roles.metadata.json
+2019-08-22T11:56:53.695-0600    restoring graylog.roles from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/roles.bson
+2019-08-22T11:56:53.707-0600    restoring graylog.cluster_config from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/cluster_config.bson
+2019-08-22T11:56:53.749-0600    restoring graylog.index_sets from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_sets.bson
+2019-08-22T11:56:53.749-0600    restoring indexes for collection graylog.cluster_config from metadata
+2019-08-22T11:56:53.749-0600    restoring indexes for collection graylog.roles from metadata
+2019-08-22T11:56:53.762-0600    restoring indexes for collection graylog.traffic from metadata
+2019-08-22T11:56:53.793-0600    finished restoring graylog.cluster_config (15 documents)
+2019-08-22T11:56:53.793-0600    reading metadata for graylog.system_messages from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/system_messages.metadata.json
+2019-08-22T11:56:53.793-0600    restoring indexes for collection graylog.index_sets from metadata
+2019-08-22T11:56:53.827-0600    finished restoring graylog.roles (2 documents)
+2019-08-22T11:56:53.827-0600    reading metadata for graylog.notifications from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/notifications.metadata.json
+2019-08-22T11:56:53.851-0600    finished restoring graylog.traffic (2205 documents)
+2019-08-22T11:56:53.851-0600    reading metadata for graylog.streams from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/streams.metadata.json
+2019-08-22T11:56:53.879-0600    restoring graylog.system_messages from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/system_messages.bson
+2019-08-22T11:56:53.946-0600    restoring graylog.notifications from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/notifications.bson
+2019-08-22T11:56:53.975-0600    restoring graylog.streams from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/streams.bson
+2019-08-22T11:56:53.997-0600    finished restoring graylog.index_sets (1 document)
+2019-08-22T11:56:53.997-0600    restoring indexes for collection graylog.notifications from metadata
+2019-08-22T11:56:53.997-0600    reading metadata for graylog.nodes from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/nodes.metadata.json
+2019-08-22T11:56:53.997-0600    restoring indexes for collection graylog.system_messages from metadata
+2019-08-22T11:56:54.003-0600    no indexes to restore
+2019-08-22T11:56:54.003-0600    finished restoring graylog.streams (1 document)
+2019-08-22T11:56:54.003-0600    reading metadata for graylog.alarmcallbackconfigurations from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/alarmcallbackconfigurations.metadata.json
+2019-08-22T11:56:54.077-0600    finished restoring graylog.notifications (2 documents)
+2019-08-22T11:56:54.077-0600    reading metadata for graylog.index_field_types from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_field_types.metadata.json
+2019-08-22T11:56:54.103-0600    restoring graylog.nodes from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/nodes.bson
+2019-08-22T11:56:54.118-0600    restoring graylog.alarmcallbackconfigurations from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/alarmcallbackconfigurations.bson
+2019-08-22T11:56:54.125-0600    restoring indexes for collection graylog.alarmcallbackconfigurations from metadata
+2019-08-22T11:56:54.130-0600    finished restoring graylog.system_messages (3 documents)
+2019-08-22T11:56:54.130-0600    reading metadata for graylog.index_ranges from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_ranges.metadata.json
+2019-08-22T11:56:54.142-0600    restoring graylog.index_field_types from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_field_types.bson
+2019-08-22T11:56:54.142-0600    no indexes to restore
+2019-08-22T11:56:54.142-0600    finished restoring graylog.nodes (1 document)
+2019-08-22T11:56:54.142-0600    reading metadata for graylog.index_failures from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_failures.metadata.json
+2019-08-22T11:56:54.149-0600    restoring indexes for collection graylog.index_field_types from metadata
+2019-08-22T11:56:54.167-0600    finished restoring graylog.alarmcallbackconfigurations (0 documents)
+2019-08-22T11:56:54.167-0600    reading metadata for graylog.lut_caches from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/lut_caches.metadata.json
+2019-08-22T11:56:54.194-0600    restoring graylog.index_ranges from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_ranges.bson
+2019-08-22T11:56:54.196-0600    restoring indexes for collection graylog.index_ranges from metadata
+2019-08-22T11:56:54.209-0600    restoring graylog.index_failures from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/index_failures.bson
+2019-08-22T11:56:54.218-0600    restoring indexes for collection graylog.index_failures from metadata
+2019-08-22T11:56:54.223-0600    restoring graylog.lut_caches from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/lut_caches.bson
+2019-08-22T11:56:54.226-0600    restoring indexes for collection graylog.lut_caches from metadata
+2019-08-22T11:56:54.279-0600    finished restoring graylog.index_field_types (0 documents)
+2019-08-22T11:56:54.279-0600    reading metadata for graylog.lut_data_adapters from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/lut_data_adapters.metadata.json
+2019-08-22T11:56:54.294-0600    finished restoring graylog.lut_caches (0 documents)
+2019-08-22T11:56:54.294-0600    reading metadata for graylog.lut_tables from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/lut_tables.metadata.json
+2019-08-22T11:56:54.326-0600    finished restoring graylog.index_failures (0 documents)
+2019-08-22T11:56:54.326-0600    reading metadata for graylog.content_packs_installations from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/content_packs_installations.metadata.json
+2019-08-22T11:56:54.347-0600    finished restoring graylog.index_ranges (0 documents)
+2019-08-22T11:56:54.348-0600    reading metadata for graylog.content_packs from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/content_packs.metadata.json
+2019-08-22T11:56:54.361-0600    restoring graylog.lut_data_adapters from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/lut_data_adapters.bson
+2019-08-22T11:56:54.363-0600    restoring indexes for collection graylog.lut_data_adapters from metadata
+2019-08-22T11:56:54.374-0600    restoring graylog.lut_tables from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/lut_tables.bson
+2019-08-22T11:56:54.376-0600    restoring indexes for collection graylog.lut_tables from metadata
+2019-08-22T11:56:54.385-0600    restoring graylog.content_packs_installations from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/content_packs_installations.bson
+2019-08-22T11:56:54.388-0600    restoring indexes for collection graylog.content_packs_installations from metadata
+2019-08-22T11:56:54.453-0600    restoring graylog.content_packs from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/content_packs.bson
+2019-08-22T11:56:54.456-0600    restoring indexes for collection graylog.content_packs from metadata
+2019-08-22T11:56:54.462-0600    finished restoring graylog.lut_data_adapters (0 documents)
+2019-08-22T11:56:54.462-0600    reading metadata for graylog.pipeline_processor_pipelines from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/pipeline_processor_pipelines.metadata.json
+2019-08-22T11:56:54.482-0600    finished restoring graylog.content_packs_installations (0 documents)
+2019-08-22T11:56:54.482-0600    reading metadata for graylog.pipeline_processor_pipelines_streams from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/pipeline_processor_pipelines_streams.metadata.json
+2019-08-22T11:56:54.494-0600    finished restoring graylog.lut_tables (0 documents)
+2019-08-22T11:56:54.494-0600    reading metadata for graylog.pipeline_processor_rules from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/pipeline_processor_rules.metadata.json
+2019-08-22T11:56:54.509-0600    restoring graylog.pipeline_processor_pipelines from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/pipeline_processor_pipelines.bson
+2019-08-22T11:56:54.517-0600    restoring indexes for collection graylog.pipeline_processor_pipelines from metadata
+2019-08-22T11:56:54.519-0600    finished restoring graylog.content_packs (0 documents)
+2019-08-22T11:56:54.519-0600    reading metadata for graylog.collectors from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/collectors.metadata.json
+2019-08-22T11:56:54.533-0600    restoring graylog.pipeline_processor_pipelines_streams from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/pipeline_processor_pipelines_streams.bson
+2019-08-22T11:56:54.536-0600    restoring indexes for collection graylog.pipeline_processor_pipelines_streams from metadata
+2019-08-22T11:56:54.550-0600    restoring graylog.pipeline_processor_rules from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/pipeline_processor_rules.bson
+2019-08-22T11:56:54.553-0600    restoring indexes for collection graylog.pipeline_processor_rules from metadata
+2019-08-22T11:56:54.570-0600    restoring graylog.collectors from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/collectors.bson
+2019-08-22T11:56:54.573-0600    restoring indexes for collection graylog.collectors from metadata
+2019-08-22T11:56:54.582-0600    finished restoring graylog.pipeline_processor_pipelines (0 documents)
+2019-08-22T11:56:54.582-0600    reading metadata for graylog.sessions from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/sessions.metadata.json
+2019-08-22T11:56:54.592-0600    finished restoring graylog.pipeline_processor_pipelines_streams (0 documents)
+2019-08-22T11:56:54.592-0600    reading metadata for graylog.sidecar_configuration_variables from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/sidecar_configuration_variables.metadata.json
+2019-08-22T11:56:54.602-0600    finished restoring graylog.pipeline_processor_rules (0 documents)
+2019-08-22T11:56:54.602-0600    reading metadata for graylog.sidecars from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/sidecars.metadata.json
+2019-08-22T11:56:54.613-0600    finished restoring graylog.collectors (0 documents)
+2019-08-22T11:56:54.613-0600    reading metadata for graylog.streamrules from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/streamrules.metadata.json
+2019-08-22T11:56:54.638-0600    restoring graylog.sessions from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/sessions.bson
+2019-08-22T11:56:54.641-0600    restoring indexes for collection graylog.sessions from metadata
+2019-08-22T11:56:54.719-0600    restoring graylog.sidecar_configuration_variables from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/sidecar_configuration_variables.bson
+2019-08-22T11:56:54.722-0600    restoring indexes for collection graylog.sidecar_configuration_variables from metadata
+2019-08-22T11:56:54.746-0600    restoring graylog.sidecars from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/sidecars.bson
+2019-08-22T11:56:54.749-0600    restoring indexes for collection graylog.sidecars from metadata
+2019-08-22T11:56:54.757-0600    restoring graylog.streamrules from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/streamrules.bson
+2019-08-22T11:56:54.759-0600    restoring indexes for collection graylog.streamrules from metadata
+2019-08-22T11:56:54.767-0600    finished restoring graylog.sidecar_configuration_variables (0 documents)
+2019-08-22T11:56:54.767-0600    reading metadata for graylog.cluster_events from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/cluster_events.metadata.json
+2019-08-22T11:56:54.787-0600    finished restoring graylog.sessions (0 documents)
+2019-08-22T11:56:54.787-0600    reading metadata for graylog.alerts from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/alerts.metadata.json
+2019-08-22T11:56:54.798-0600    finished restoring graylog.sidecars (0 documents)
+2019-08-22T11:56:54.798-0600    reading metadata for graylog.alarmcallbackhistory from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/alarmcallbackhistory.metadata.json
+2019-08-22T11:56:54.821-0600    finished restoring graylog.streamrules (0 documents)
+2019-08-22T11:56:54.821-0600    reading metadata for graylog.users from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/users.metadata.json
+2019-08-22T11:56:54.839-0600    restoring graylog.cluster_events from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/cluster_events.bson
+2019-08-22T11:56:54.842-0600    restoring indexes for collection graylog.cluster_events from metadata
+2019-08-22T11:56:54.858-0600    restoring graylog.alerts from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/alerts.bson
+2019-08-22T11:56:54.860-0600    restoring indexes for collection graylog.alerts from metadata
+2019-08-22T11:56:54.870-0600    restoring graylog.alarmcallbackhistory from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/alarmcallbackhistory.bson
+2019-08-22T11:56:54.873-0600    restoring indexes for collection graylog.alarmcallbackhistory from metadata
+2019-08-22T11:56:54.886-0600    restoring graylog.users from /tmp/mongodb-sgs-dev-dump-08222019-1030/graylog/users.bson
+2019-08-22T11:56:54.896-0600    restoring indexes for collection graylog.users from metadata
+2019-08-22T11:56:54.898-0600    finished restoring graylog.cluster_events (0 documents)
+2019-08-22T11:56:54.909-0600    finished restoring graylog.alerts (0 documents)
+2019-08-22T11:56:54.920-0600    finished restoring graylog.alarmcallbackhistory (0 documents)
+2019-08-22T11:56:54.934-0600    finished restoring graylog.users (0 documents)
+2019-08-22T11:56:54.934-0600    done
+******************************************************
+
+
+[ctummalachervu@indevl-stamdb01 mongodb-sgs-dev-dump-08222019-1030]$ mongorestore --host 10.76.235.114:27017 --username testUser --password abc123 --authenticationDatabase auth --db sgs_messaging /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_messaging
+2019-08-22T11:57:53.987-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-08-22T11:57:53.987-0600    building a list of collections to restore from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_messaging dir
+2019-08-22T11:57:54.010-0600    reading metadata for sgs_messaging.17 from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_messaging/17.metadata.json
+2019-08-22T11:57:54.077-0600    restoring sgs_messaging.17 from /tmp/mongodb-sgs-dev-dump-08222019-1030/sgs_messaging/17.bson
+2019-08-22T11:57:54.102-0600    no indexes to restore
+2019-08-22T11:57:54.102-0600    finished restoring sgs_messaging.17 (10 documents)
+2019-08-22T11:57:54.102-0600    done
+*******************************************
+
+To check the USers info, you have to authenticate to Admin, then switch to "auth" db, then execute db.getUsers() command.
+
+mongo -u devAdmin -p abc123 --authenticationDatabase admin
+> db.getUsers()
+[ ]
+> show dbs
+admin            0.000GB
+config           0.000GB
+local            0.000GB
+scheduled_jobs   0.000GB
+sgs_apscheduler  0.000GB
+sgs_jam_history  0.000GB
+> db
+test
+> use auth
+switched to db auth
+> db.getUsers()
+[
+        {
+                "_id" : "auth.testUser",
+                "userId" : UUID("140dbb54-753d-49b7-980a-dc74ca9e29fd"),
+                "user" : "testUser",
+                "db" : "auth",
+                "roles" : [
+                        {
+                                "role" : "readWrite",
+                                "db" : "auth"
+                        },
+                        {
+                                "role" : "readWrite",
+                                "db" : "scheduled_jobs"
+                        },
+                        {
+                                "role" : "readWrite",
+                                "db" : "sgs_apscheduler"
+                        },
+                        {
+                                "role" : "readWrite",
+                                "db" : "sgs_jam_history"
+                        },
+                        {
+                                "role" : "readWrite",
+                                "db" : "sgs_whitelist"
+                        }
+                ],
+                "mechanisms" : [
+                        "SCRAM-SHA-1",
+                        "SCRAM-SHA-256"
+                ]
+        }
+]
+***********************************************
+Create a New DB and assing a existing a user to it :
+First switch to "AUTH" where the User exists.
+
+db.grantRolesToUser( "testUser", [ { role: "readWrite", db: "sgs_messaging"}])
+
+****************************************************
+
+
+> show dbs
+admin            0.000GB
+config           0.000GB
+graylog          0.001GB
+local            0.000GB
+scheduled_jobs   0.000GB
+sgs_apscheduler  0.000GB
+sgs_jam_history  0.000GB
+sgs_messaging    0.000GB
+test             0.000GB
+
+
+**********************************************************
+**********************************************************
+**********************************************************
+
+*********************PROD*********************************
+
+
+> db.createUser(
+... {
+... user: "prodAdmin",
+... pwd: "abc123",
+... roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+... }
+... )
+
+**********************************************************
+ mongo --port 27017 -u "prodAdmin" -p "abc123" --authenticationDatabase "admin"
+
+*********************************************************
+
+> db.createUser({
+... user: "appUser",
+... pwd: "Mongo_Prod123",
+... roles:[
+... { role: "readWrite", db: "auth"},
+... { role: "readWrite", db: "sgs_whitelist"},
+... { role: "readWrite", db: "sgs_messaging"},
+... { role: "readWrite", db: "sgs_jam_history"},
+... { role: "readWrite", db: "sgs_email"},
+... { role: "readWrite", db: "sgs_apscheduler"},
+... { role: "readWrite", db: "scheduled_jobs"},
+... { role: "readWrite", db: "episode_series_timers"}
+... ]
+... }
+... )
+**************************************
+
+ mongorestore --host 10.76.235.35:27017 --username prodUser --password zaq12wsx --authenticationDatabase auth --db sgs_jam_history /tmp/mongodb-prod-dump-092519-1103/sgs_jam_history
+
+ mongo --port 27017 -u "prodUser" -p "zaq12wsx" --authenticationDatabase auth
+
+
+**************************************
+
+
+[ctummalachervu@inprdl-stamdb01 mongodb-prod-dump-093019-1118]$ mongo --port 27017 -u "prodUser" -p "zaq12wsx" --authenticationDatabase auth                                                 MongoDB shell version v4.0.12
+connecting to: mongodb://127.0.0.1:27017/?authSource=auth&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("c8d2373e-0b70-4648-8d35-f55ba7f97845") }
+MongoDB server version: 4.0.12
+> use scheduled_jobs
+switched to db scheduled_jobs
+> show collections
+device_queue
+jobs
+> db.device_queue.drop()
+true
+> db.jobs.drop()
+true
+> show collections
+> exit
+bye
+
+
+[ctummalachervu@inprdl-stamdb01 mongodb-prod-dump-093019-1118]$ mongorestore --host 10.76.235.35:27017 --username prodUser --password zaq12wsx --authenticationDatabase auth --db scheduled_jobs /tmp/mongodb-prod-dump-093019-1118/scheduled_jobs
+2019-09-30T11:54:32.057-0600    the --db and --collection args should only be used when restoring from a BSON file. Other uses are deprecated and will not exist in the future; use --nsInclude instead
+2019-09-30T11:54:32.058-0600    building a list of collections to restore from /tmp/mongodb-prod-dump-093019-1118/scheduled_jobs dir
+2019-09-30T11:54:32.078-0600    reading metadata for scheduled_jobs.jobs from /tmp/mongodb-prod-dump-093019-1118/scheduled_jobs/jobs.metadata.json
+2019-09-30T11:54:32.098-0600    reading metadata for scheduled_jobs.device_queue from /tmp/mongodb-prod-dump-093019-1118/scheduled_jobs/device_queue.metadata.json
+2019-09-30T11:54:32.174-0600    restoring scheduled_jobs.jobs from /tmp/mongodb-prod-dump-093019-1118/scheduled_jobs/jobs.bson
+2019-09-30T11:54:32.188-0600    restoring scheduled_jobs.device_queue from /tmp/mongodb-prod-dump-093019-1118/scheduled_jobs/device_queue.bson
+2019-09-30T11:54:32.218-0600    no indexes to restore
+2019-09-30T11:54:32.218-0600    finished restoring scheduled_jobs.device_queue (18 documents)
+2019-09-30T11:54:32.273-0600    no indexes to restore
+2019-09-30T11:54:32.273-0600    finished restoring scheduled_jobs.jobs (241 documents)
+2019-09-30T11:54:32.273-0600    done
+
+
+
+
+
+
+

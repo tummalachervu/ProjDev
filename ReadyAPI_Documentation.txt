@@ -1,0 +1,101 @@
+[jenkins@indevl-jenkin01 tmp]$ java -jar ready-api-license-manager-1.2.7.jar -i
+Please select the tool for which license info should be printed
+1. SoapUI Pro
+2. LoadUI Pro
+3. Secure (if you have an old license)
+4. ServiceV Pro
+5. VirtServer
+6. ReadyAPI Bundle
+1
+Licensed Module: SoapUI Pro
+License Number: [2018-02-26 00:00:00] RAFU-1Y-SBN-NL - SO00063795-1 [1]
+License Type: PROFESSIONAL (standard)
+Issue Date: 25-Feb-2018
+Expiration Date: 27-Nov-2019
+
+
+
+********************************************
+
+
+[jenkins@inprdl-jenkin02 ~]$ ./ReadyAPI-x64-2.8.0.sh -c
+Unpacking JRE ...
+Starting Installer ...
+This will install ReadyAPI 2.8.0 on your computer.
+OK [o, Enter], Cancel [c]
+0
+This will install ReadyAPI 2.8.0 on your computer.
+OK [o, Enter], Cancel [c]
+o
+Click Next to continue, or Cancel to exit Setup.
+View Documentation https://support.smartbear.com/readyapi/docs/general-info/install/install-from-ui.html
+Select the folder where you would like ReadyAPI 2.8.0 to be installed, then
+click Next.
+Where should ReadyAPI 2.8.0 be installed?
+[/home/jenkins/SmartBear/ReadyAPI-2.8.0]
+
+View Documentation https://support.smartbear.com/readyapi/docs/general-info/install/install-from-ui.html
+Extracting files ...
+                                                                           Setup has finished installing ReadyAPI 2.8.0 on your computer.
+
+Run ReadyAPI 2.8.0?
+Yes [y, Enter], No [n]
+y
+Create a desktop icon?
+Yes [y, Enter], No [n]
+n
+View Release Notes https://support.smartbear.com/readyapi/docs/general-info/version-history/features-added-to-ver-2.8.0.html
+Finishing installation ...
+**********************
+
+[jenkins@indevl-jenkin01 tmp]$ java -jar ready-api-license-manager-1.2.7.jar -x
+Please select the tool for which you want to deactivate the license:
+1. SoapUI Pro
+2. LoadUI Pro
+3. Secure (if you have an old license)
+4. ServiceV Pro
+5. VirtServer
+6. ReadyAPI Bundle
+1
+
+Deactivation of license:
+
+SoapUI Pro: [2018-02-26 00:00:00] RAFU-1Y-SBN-NL - SO00063795-1 [1]
+License will be removed from computer on deactivation.
+Are you sure you want to deactivate this license? [y/N]: y
+Please choose how to deactivate license (Default: Online):
+1. Online (should be able to connect to https://activation.smartbear.com)
+2. Offline (send an email with the deactivation key)
+1
+License has been deactivated successfully!
+
+
+******************************************
+
+
+[jenkins@inprdl-jenkin02 tmp]$ java -jar ready-api-license-manager-1.2.7.jar -i
+Please select the tool for which license info should be printed
+1. SoapUI Pro
+2. LoadUI Pro
+3. Secure (if you have an old license)
+4. ServiceV Pro
+5. VirtServer
+6. ReadyAPI Bundle
+1
+Licensed Module: SoapUI Pro
+License Number: [2018-02-26 00:00:00] RAFU-1Y-SBN-NL - SO00063795-1 [1]
+License Type: PROFESSIONAL (standard)
+Issue Date: 25-Feb-2018
+Expiration Date: 27-Nov-2019
+
+
+************************************************************
+
+License has been installed successfully for SoapUI Pro!
+Licensed Module: SoapUI Pro
+License Number: [2019-11-27 00:00:00] RAFU-1Y-SBR-NL - SO00087077-3 [7]
+License Type: PROFESSIONAL (standard)
+Issue Date: 26-Nov-2019
+Expiration Date: 28-Nov-2020
+
+

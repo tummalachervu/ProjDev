@@ -1,0 +1,33 @@
+1. Enable Role-Based Access Control (RBAC):
+
+The role-based access control method means that no user has more permissions than they need to accomplish their tasks. RBAC uses an API group to drive authorization decisions through the Kubernetes API.
+
+--authorization-mode=RBAC
+
+2. We have to create "config maps" or "secrets". 
+
+In Kubernetes, a Secret is a small object that contains sensitive data, like a password or token.
+
+Even though a pod is not able to access the secrets of another pod, it is crucial to keep the secret separate from an image or pod. Otherwise, anyone with access to the image would have access to the secret as well. 
+
+4. Implement TSL Certificates: 
+
+With this we can restrict etcd servers  that can be accessed by API servers alone.We haev to Impose the TLS security protocol on each level of the application deployment pipeline
+
+5. Restrict Pod-to-Pod Traffic With a Kubernetes Network Policy
+
+
+Pods accept traffic from any source by default. When you define Network Policies, you set specific rules on how pods communicate within a cluster and with external resources.
+
+defined network policy that denies all non-whitelisted traffic. Defining a network policy in a namespace means that the pod is going to reject any connection not allowed by that policy, effectively isolating the pod.
+
+6. We can implement Taints and Tolerations
+Kubernetes provides the option to create predefined rules when the system assigns new pods to nodes.
+
+Taints allow nodes to ‘reject’ a pod or set of pods based on the predefined rules. On the other hand, Tolerations are applied at the pod level, and they enable pods to schedule to nodes with matching Taints (the keys and effects are the same).
+
+There are several techniques such as rolling updates, and node pool migrations that allow you to complete an update with minimal disruption and downtime.
+
+7. You can Run Vulnerability Scans & Define Audit Policies
+how often events are being logged, if alerts should be issued, and the procedure for terminating affected pods.
+
